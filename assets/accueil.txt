@@ -1,0 +1,5 @@
+Bienvenu dans le nouvel interpretteur du langage LRS (Langage de Requêtes Simple)
+
+Entrez une commande et terminez la par un point-virgule pour commencer ou
+tapez "AIDE;" pour afficher la documentation ou
+tapez "QUITTER;" pour quitter le programme
