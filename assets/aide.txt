@@ -59,3 +59,7 @@ CHOISIR personne PRODUIT note[personne.nom, note.valeur];
 - Jointure naturelle :
 CHOISIR personne JOINTURE note;
 CHOISIR personne JOINTURE note[nom, valeur];
+
+- Teta jointure :
+CHOISIR personne JOINTURE[personne.id = note.id_personne + 1] note;
+CHOISIR personne JOINTURE[personne.id = note.id_personne + 1] note[personne.nom, note.valeur];

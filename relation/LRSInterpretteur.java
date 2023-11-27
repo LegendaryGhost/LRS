@@ -213,16 +213,20 @@ public class LRSInterpretteur {
 
         // Si la commande contient un crocher ouvert [ et un crochet fermé ]
         if (avant_predicats.contains("[") && avant_predicats.contains("]")) {
-            if (avant_predicats.indexOf("[") != avant_predicats.lastIndexOf("[")) {
-                throw new Exception("Erreur de syntaxe près de " + commande.substring(0, commande.indexOf("[")));
-            } else if (avant_predicats.indexOf("]") != avant_predicats.lastIndexOf("]")) {
-                throw new Exception("Erreur de syntaxe près de " + commande.substring(0, commande.indexOf("]") + 1));
+            if (Syntaxe.compterCaractereHG(avant_predicats, '[') != Syntaxe.compterCaractereHG(avant_predicats, ']')) {
+                throw new Exception("Il y a des guillemets en trop dans : " + avant_predicats);
             } else {
-                String[] colonnes = avant_predicats.substring(avant_predicats.indexOf("[") + 1, avant_predicats.lastIndexOf("]")).split(",");
-                for (int i = 0; i < colonnes.length; i++) {
-                    colonnes[i] = colonnes[i].trim();
+                String[] colonnes = null;
+                String nomRelation = avant_predicats;
+                if (avant_predicats.endsWith("]")) {
+                    colonnes = avant_predicats.substring(avant_predicats.lastIndexOf("[") + 1, avant_predicats.lastIndexOf("]")).split(",");
+                    nomRelation = avant_predicats.substring(0, avant_predicats.lastIndexOf("[")).trim();
                 }
-                String nomRelation = avant_predicats.substring(0, avant_predicats.indexOf("[")).trim();
+                if (colonnes != null) {
+                    for (int i = 0; i < colonnes.length; i++) {
+                        colonnes[i] = colonnes[i].trim();
+                    }
+                }
                 base.selectionner(nomRelation, predicats, colonnes);
             }
         } else if(!avant_predicats.contains("[") && !avant_predicats.contains("]")) {

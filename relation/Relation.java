@@ -209,6 +209,12 @@ public class Relation {
         }
     }
 
+    public Relation produitCart(Relation relation2) throws Exception {
+        Vector<Relation> vRelation = new Vector<Relation>();
+        vRelation.add(relation2);
+        return produitCart(vRelation);
+    }
+
     public Relation produitCart(Vector<Relation> relations) throws Exception {
         Relation resultat = new Relation(nom);
         Vector<String> nouvColonnes = new Vector<String>();
@@ -264,6 +270,12 @@ public class Relation {
         return resultat;
     }
 
+    public Relation jointureNat(Relation relation2) throws Exception {
+        Vector<Relation> vRelation = new Vector<Relation>();
+        vRelation.add(relation2);
+        return jointureNat(vRelation);
+    }
+
     public Relation jointureNat(Vector<Relation> relations) throws Exception {
         Relation resultat = produitCart(relations);
         Vector<String> colsCommun = new Vector<String>();
@@ -298,6 +310,7 @@ public class Relation {
             }
             throw new Exception(message_erreur);
         } else {
+            predicats = predicats.substring(0, predicats.lastIndexOf(" ET "));
             ArbrePredicat ap = new ArbrePredicat(new NoeudPredicat(predicats));
             ap.arrangerRacine();
             resultat = ap.getRelation(resultat);
@@ -328,6 +341,16 @@ public class Relation {
         }
 
         resultat.setColonnes(nouvCols);
+
+        return resultat;
+    }
+
+    public Relation tetaJointure(Relation relation2, String predicat) throws Exception {
+        Relation resultat = produitCart(relation2);
+
+        ArbrePredicat ap = new ArbrePredicat(new NoeudPredicat(predicat));
+        ap.arrangerRacine();
+        resultat = ap.getRelation(resultat);
 
         return resultat;
     }

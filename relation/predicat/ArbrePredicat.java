@@ -26,4 +26,8 @@ public class ArbrePredicat {
         return racine.getRelation(origine);
     }
 
+    public String getValeurInitiale() {
+        return racine.getValeurInitiale();
+    }
+
 }

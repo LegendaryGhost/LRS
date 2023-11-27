@@ -7,12 +7,16 @@ import relation.syntaxe.Syntaxe;
 
 public class NoeudPredicat {
     
-    private String valeur;
+    private String valeur, valeurInitiale;
     private Vector<NoeudPredicat> enfants;
 
     public NoeudPredicat(String valeur) {
-        this.valeur = valeur;
+        this.valeur = valeurInitiale = valeur;
         this.enfants = new Vector<NoeudPredicat>();
+    }
+
+    public String getValeurInitiale() {
+        return valeurInitiale;
     }
 
     public void arranger() throws Exception {
