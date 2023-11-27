@@ -19,8 +19,9 @@ public class Syntaxe {
     };
 
     private static String[] caracteres_spec = {
-        "[", "]", ".", ";", " "
+        "[", "]", ".", ";", " ", "/", "*", "%", "+", "-"
     };
+    private static String[] operateurs = {"/", "*", "%", "+", "-"};
 
     public static boolean estMotCle(String chaine) {
         for (String mot_cle : mots_cles) {
@@ -387,6 +388,15 @@ public class Syntaxe {
             nbr_caracteres += compterCaractere(partieHG, caractere);
         }
         return nbr_caracteres;
+    }
+
+    public static boolean contientOperateur(String terme) {
+        for (String operateur : operateurs) {
+            if (terme.contains(operateur)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -2,6 +2,7 @@ package relation;
 
 import java.util.Vector;
 
+import relation.operation.NoeudOperation;
 import relation.predicat.ArbrePredicat;
 import relation.predicat.NoeudPredicat;
 import relation.syntaxe.Syntaxe;
@@ -477,12 +478,14 @@ public class Relation {
         return resultat;
     }
 
-    // WHERE id = 1
-    // WHERE id > 1
-    // WHERE id < 1
-    // WHERE id >= 1
-    // WHERE id <= 1
-    // WHERE id != 1
+    /**
+     * Prend un seul bloc de prédicat à la fois en paramètre : terme1 operateur terme2
+     * Si vous voulez combiner plusieurs blocs de prédicat : [terme1 operateur terme2 OU terme3 operateur terme4] ET terme5 operateur terme6
+     * pensez à utiliser les classes relation.predicat.ArbrePredicat et relation.predicat.NoeudPredicat
+     * @param predicat un bloc de prédicat : terme1 operateur terme2
+     * @return une relation dont les données correspondent au prédicat passé en paramètre
+     * @throws Exception
+     */
     public Relation predicat(String predicat) throws Exception {
         Relation resultat = new Relation(this.nom);
         resultat.setColonnes(colonnes);
@@ -508,13 +511,13 @@ public class Relation {
 
                 if (type_terme1.equals("colonne")) {
                     if (!colonnes.contains(termes.get(0))) {
-                        throw new IllegalArgumentException("Colonne " + termes.get(0) + " inconnu près de : " + predicat);
+                        throw new IllegalArgumentException("Colonne " + termes.get(0) + " inconnue près de : " + predicat);
                     }
                 }
 
                 if (type_terme2.equals("colonne")) {
                     if (!colonnes.contains(termes.get(1))) {
-                        throw new IllegalArgumentException("Colonne " + termes.get(1) + " inconnu près de : " + predicat);
+                        throw new IllegalArgumentException("Colonne " + termes.get(1) + " inconnue près de : " + predicat);
                     }
                 }
 
@@ -530,27 +533,37 @@ public class Relation {
         return resultat;
     }
 
-    private String getTypeTerme(String terme, String predicat) {
+    public static String getTypeTerme(String terme) {
+        return getTypeTerme(terme, "");
+    }
+
+    public static String getTypeTerme(String terme, String predicat) {
         if (
             terme.equals("")
         ) {
             throw new IllegalArgumentException("Terme manquant dans : " + predicat);
-        } else if ((terme.startsWith("\"") && terme.endsWith("\""))) {
+        // "chaîne"
+        } else if (Syntaxe.contientOperateur(terme)) {
+            return "expression";
+        } else if (terme.startsWith("\"") && terme.endsWith("\"")) {
             return "lettres";
+        // -678
         } else if (terme.matches("-?\\d+")) {
             return "entier";
+        // -678.908
         } else if (terme.matches("-?\\d+(\\.\\d+)?")) {
             return "decimal";
         } else if (terme.equals("vrai") || terme.equals("faux")) {
             return "booleen";
         } else if (terme.equals("null")) {
             return "null";
+        // [1 + 2] * 3
         } else {
             return "colonne";
         }
     }
 
-    private boolean ligneValidePredicat(Vector<Object> ligne, String terme1, String terme2, String type_terme1, String type_terme2, String operateur, String predicat) {
+    private boolean ligneValidePredicat(Vector<Object> ligne, String terme1, String terme2, String type_terme1, String type_terme2, String operateur, String predicat) throws Exception {
         boolean resultat = false;
         if (type_terme1.equals("lettres")) {
             terme1 = terme1.substring(1, terme1.length() - 1);
@@ -567,7 +580,20 @@ public class Relation {
                 terme1 = terme_courrant.toString();
                 type_terme1 = domaines.get(col_id);
             }
+        } else if (type_terme1.equals("expression")) {
+            // 1 + 1 - 1 => 1
+            // "string1" + "string2" => "string1string2"
+            // 1 + "string2" => erreur
+            // id + 1 => 1 + 1 => 2
+            // "string" + nom => "string" + "Tiarintsoa" => "stringTiarintsoa"
+            // id + nom => erreur
+            // nom - nom => erreur
+            NoeudOperation noeudOp = new NoeudOperation(terme1, ligne, colonnes, domaines);
+            noeudOp.arranger();
+            terme1 = noeudOp.getValeurExpression();
+            type_terme1 = noeudOp.getType();
         }
+
         if (type_terme2.equals("lettres")) {
             terme2 = terme2.substring(1, terme2.length() - 1);
         } else if (type_terme2.equals("colonne")) {
@@ -583,6 +609,18 @@ public class Relation {
                 terme2 = terme_courrant.toString();
                 type_terme2 = domaines.get(col_id);
             }
+        } else if (type_terme2.equals("expression")) {
+            // 1 + 1 - 1 => 1
+            // "string1" + "string2" => "string1string2"
+            // 1 + "string2" => erreur
+            // id + 1 => 1 + 1 => 2
+            // "string" + nom => "string" + "Tiarintsoa" => "stringTiarintsoa"
+            // id + nom => erreur
+            // nom - nom => erreur
+            NoeudOperation noeudOp = new NoeudOperation(terme2, ligne, colonnes, domaines);
+            noeudOp.arranger();
+            terme2 = noeudOp.getValeurExpression();
+            type_terme2 = noeudOp.getType();
         }
 
         if (operateur.equals("=")) {

@@ -30,7 +30,7 @@ public class NoeudPredicat {
                 }
             }
             valeur = "ET";
-        } else if (Syntaxe.compterCaractereHG(valeur, '[') == 1 && Syntaxe.compterCaractere(valeur, ']') == 1) {
+        } else if (Syntaxe.compterCaractereHG(valeur, '[') == 1 && Syntaxe.compterCaractereHG(valeur, ']') == 1) {
             valeur = valeur.trim().substring(1, valeur.length() - 1).trim();
             arranger();
         } else if (Syntaxe.contientHG(valeur, "[") && Syntaxe.contientHG(valeur, "]")) {
@@ -62,7 +62,7 @@ public class NoeudPredicat {
         Relation resultat = null;
         switch (valeur) {
             case "OU":
-                if (enfants.size() == 0) {
+                if (enfants.size() <= 1) {
                     throw new Exception("Le mot clé \"OU\" doit être entouré par 2 prédicats");
                 } else {
                     resultat = enfants.get(0).getRelation(origine);
@@ -73,7 +73,7 @@ public class NoeudPredicat {
                 break;
 
             case "ET":
-                if (enfants.size() == 0) {
+                if (enfants.size() <= 1) {
                     throw new Exception("Le mot clé \"ET\" doit être entouré par 2 prédicats");
                 } else {
                     resultat = enfants.get(0).getRelation(origine);
