@@ -106,6 +106,10 @@ public class Relation {
     }
 
     private boolean domainesSimilaires(Vector<String> domaines2) {
+        if (domaines.size() != domaines2.size()) {
+            return false;
+        }
+
         for (int i = 0; i < domaines.size(); i++) {
             if (!domaines.get(i).equals(domaines2.get(i))) {
                 return false;
@@ -132,11 +136,17 @@ public class Relation {
         return false;
     }
 
-    private Vector<Vector<Object>> donneesSansDoublons(Vector<Vector<Object>> donnees2) {
+    public Vector<Vector<Object>> donneesSansDoublons() {
+        return donneesSansDoublons(new Vector<Vector<Object>>());
+    }
+
+    public Vector<Vector<Object>> donneesSansDoublons(Vector<Vector<Object>> donnees2) {
         Vector<Vector<Object>> resultat = new Vector<Vector<Object>>();
 
         for (Vector<Object> ligne : donnees) {
-            resultat.add(ligne);
+            if(!donneesContient(donnees, ligne)) {
+                resultat.add(ligne);
+            }
         }
 
         for (Vector<Object> ligne2 : donnees2) {
@@ -251,6 +261,7 @@ public class Relation {
         resultat.setColonnes(nouvColonnes);
         resultat.setDomaines(nouvDomaines);
         resultat.setDonnees(nouvDonnees);
+        resultat.setDonnees(resultat.donneesSansDoublons());
 
         return resultat;
     }
@@ -498,6 +509,7 @@ public class Relation {
             resultat.setDomaines(nouv_domaines);
             resultat.setDonnees(nouv_donnees);
         }
+        resultat.setDonnees(resultat.donneesSansDoublons());
         return resultat;
     }
 
