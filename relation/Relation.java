@@ -203,11 +203,6 @@ public class Relation {
             resultat.setColonnes(colonnes);
             resultat.setDomaines(domaines);
             Vector<Vector<Object>> donneesResultat = new Vector<Vector<Object>>();
-            for (Vector<Object> ligne : relation2.getDonnees()) {
-                if (!donneesContient(donnees, ligne)) {
-                    donneesResultat.add(ligne);
-                }
-            }
             for (Vector<Object> ligne : donnees) {
                 if (!donneesContient(relation2.getDonnees(), ligne)) {
                     donneesResultat.add(ligne);
