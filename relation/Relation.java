@@ -1,5 +1,6 @@
 package relation;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import relation.operation.NoeudOperation;
@@ -120,7 +121,12 @@ public class Relation {
 
     private boolean lignesSimilaires(Vector<Object> ligne1, Vector<Object> ligne2) {
         for (int i = 0; i < ligne1.size(); i++) {
-            if(!ligne1.get(i).equals(ligne2.get(i))) {
+            // Prevents bug from null values
+            if (ligne1.get(i) == null || ligne2.get(i) == null) {
+              if (ligne1.get(i) != ligne2.get(i)) {
+                return false;
+              }  
+            } else if(!ligne1.get(i).equals(ligne2.get(i))) {
                 return false;
             }
         }
@@ -144,13 +150,13 @@ public class Relation {
         Vector<Vector<Object>> resultat = new Vector<Vector<Object>>();
 
         for (Vector<Object> ligne : donnees) {
-            if(!donneesContient(donnees, ligne)) {
+            if(!donneesContient(resultat, ligne)) {
                 resultat.add(ligne);
             }
         }
 
         for (Vector<Object> ligne2 : donnees2) {
-            if(!donneesContient(donnees, ligne2)) {
+            if(!donneesContient(resultat, ligne2)) {
                 resultat.add(ligne2);
             }
         }
@@ -225,20 +231,32 @@ public class Relation {
         Vector<String> nouvColonnes = new Vector<String>();
         Vector<String> nouvDomaines = new Vector<String>();
         Vector<Vector<Object>> nouvDonnees = donnees;
+        HashMap<String, Integer> repRelations = new HashMap<String, Integer>();
 
+        
         for (Relation relation : relations) {
-            resultat.setNom(resultat.getNom() + " x " + relation.getNom());
+            String nomRelation = relation.getNom();
+            resultat.setNom(resultat.getNom() + " x " + nomRelation);
         }
-
+        
         for (String colonne : colonnes) {
             nouvColonnes.add(nom + "." + colonne);
         }
+        
+        repRelations.put(nom, 1);
         for (Relation relation : relations) {
+            String nomRelation = relation.getNom();
+            if (repRelations.containsKey(nomRelation)) {
+                repRelations.put(nomRelation, repRelations.get(nomRelation) + 1);
+            } else {
+                repRelations.put(nomRelation, 1);
+            }
             for (String colonne : relation.getColonnes()) {
-                nouvColonnes.add(relation.getNom() + "." + colonne);
+                int nbRep = repRelations.get(nomRelation);
+                String nomNouvCol = relation.getNom() + (nbRep > 1 ? nbRep : "") + "." + colonne;
+                nouvColonnes.add(nomNouvCol);
             }
         }
-        
 
         for (String domaine : domaines) {
             nouvDomaines.add(domaine);

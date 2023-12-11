@@ -62,8 +62,8 @@ public class LRSInterpretteur {
             bufferedReader.close();
             fileReader.close();
         } catch (IOException e) {
-            // System.err.println(e.getMessage());
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+            // e.printStackTrace();
         }
     }
 
