@@ -69,11 +69,11 @@ public class Base {
         }
     }
 
-    public void selectionner(String nomRelation, ArbrePredicat predicats) throws Exception {
-        selectionner(nomRelation, predicats, null);
+    public void selectionner(int limite, String nomRelation, ArbrePredicat predicats) throws Exception {
+        selectionner(limite, nomRelation, predicats, null);
     }
 
-    public void selectionner(String nomRelation, ArbrePredicat predicats, String[] colonnes) throws Exception {
+    public void selectionner(int limite, String nomRelation, ArbrePredicat predicats, String[] colonnes) throws Exception {
         Relation resultat = new Relation("resultat");
 
         if (Syntaxe.contientHG(nomRelation.toUpperCase(), "PRODUIT") && Syntaxe.contientHG(nomRelation.toUpperCase(), "JOINTURE")) {
@@ -147,6 +147,8 @@ public class Base {
         if (colonnes != null) {
             resultat = resultat.projection(colonnes);
         }
+
+        resultat.limiterNbDonnees(limite);
 
         resultat.afficherDonnees();
     }

@@ -202,6 +202,23 @@ public class LRSInterpretteur {
     public void selectionner(String commande) throws Exception {
         String commande2 = Syntaxe.remplacerHG(commande, ";", "").trim();
         ArbrePredicat predicats = null;
+        int limite = -1;
+
+        if (Syntaxe.contientHG(commande2.toUpperCase(), " LIMITE ")) {
+            Vector<String> partie_limites = Syntaxe.separerHG(commande2, " LIMITE ");
+            if (partie_limites.size() > 2) {
+                throw new Exception("La commande ne doit pas contenir plusieurs symbôle : LIMITE");
+            } else {
+                try {
+                    limite = Integer.parseInt(partie_limites.get(1).trim());
+                    commande2 = partie_limites.get(0).trim();
+                } catch (Exception e) {
+                    System.out.println("\"" + partie_limites.get(1).trim() + "\"");
+                    throw new Exception("Limite invalide");
+                }
+            }
+        }
+
         Vector<String> temps = Syntaxe.separerHG(commande2, " PREDICATS ");
         String avant_predicats = temps.get(0);
         if (temps.size() > 2) {
@@ -227,11 +244,11 @@ public class LRSInterpretteur {
                         colonnes[i] = colonnes[i].trim();
                     }
                 }
-                base.selectionner(nomRelation, predicats, colonnes);
+                base.selectionner(limite, nomRelation, predicats, colonnes);
             }
         } else if(!avant_predicats.contains("[") && !avant_predicats.contains("]")) {
             String nomRelation = avant_predicats.trim();
-            base.selectionner(nomRelation, predicats);    
+            base.selectionner(limite, nomRelation, predicats);    
         } else {
             String pattern = commande2.contains("[") ? "[" : "]";
             throw new Exception("Erreur de syntaxe près de " + commande.substring(0, commande.indexOf(pattern) + 1));

@@ -85,6 +85,18 @@ public class Relation {
         }
     }
 
+    public void limiterNbDonnees(int limite) {
+        if (limite < 1) {
+            return;
+        }
+
+        Vector<Vector<Object>> nouvDonnees = new Vector<Vector<Object>>();
+        for (int index = 0; index < donnees.size() && index < limite; index++) {
+            nouvDonnees.add(donnees.get(index));
+        }
+        setDonnees(nouvDonnees);
+    }
+
     private boolean domainesValides(Vector<String> domaines) {
         boolean resultat = true;
         domaines_invalides = new Vector<String>();
