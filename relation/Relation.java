@@ -391,6 +391,38 @@ public class Relation {
         return resultat;
     }
 
+    public Relation division(Relation relation2) {
+        Relation resultat = new Relation(getNom());
+        Vector<String> colsCommuns = getColonnesCommuns(relation2);
+
+        // Soit this = R1 et relation2 = R2
+        // Récupérer la relation qui ne contient pas les colonnes de R2 à partir de R1
+        // On appelera cette relation R3
+
+        // Toutes les combinaisons possibles
+        // R4 = R3 * R2
+        
+        // Les combinaisons absentes
+        // R5 = R4 - R1
+
+        // Le résultat
+        // R6 = R4 - R5
+
+        return resultat;
+    }
+
+    public Vector<String> getColonnesCommuns(Relation relation2) {
+        Vector<String> colsCommuns = new Vector<String>();
+
+        for (String colonne : relation2.getColonnes()) {
+            if (getColonnes().contains(colonne)) {
+                colsCommuns.add(colonne);
+            }
+        }
+
+        return colsCommuns;
+    }
+
     public void ajouterLigne(Vector<Object> ligne) throws Exception {
         if (ligne.size() != colonnes.size()) {
             throw new Exception("Le nombre de colonne de la relation " + nom + " et celui de la nouvelle ligne ne doivent pas être différentes");
