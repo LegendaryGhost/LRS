@@ -15,7 +15,8 @@ public class Syntaxe {
         "JOINTURE",
         "PRODUIT",
         "OU",
-        "NON"
+        "NON",
+        "LIMITE"
     };
 
     private static String[] caracteres_spec = {
