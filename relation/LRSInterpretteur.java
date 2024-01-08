@@ -14,21 +14,24 @@ import relation.syntaxe.Syntaxe;
 
 public class LRSInterpretteur {
 
-    HashMap<String, String> COMMANDES_VALIDES = new HashMap<String, String>();
-    String CURRENT_DIR;
+    private final HashMap<String, String> COMMANDES_VALIDES = new HashMap<String, String>();
+    private String CURRENT_DIR;
 
-    Base base = new Base();
-    Scanner sc = new Scanner(System.in);
-    StringBuilder inputBuffer = new StringBuilder();
-    boolean en_marche = true;
+    private Base base = new Base();
+    private Scanner sc = new Scanner(System.in);
+    private StringBuilder inputBuffer = new StringBuilder();
+    private boolean en_marche = true;
 
-    public LRSInterpretteur() {
+    // Bloc d'initialisation
+    {
         COMMANDES_VALIDES.put("CREER RELATION", "creer");
         COMMANDES_VALIDES.put("AJOUTER DANS", "inserer");
         COMMANDES_VALIDES.put("CHOISIR", "selectionner");
         COMMANDES_VALIDES.put("QUITTER", "quitter");
         COMMANDES_VALIDES.put("AIDE", "aide");
+    }
 
+    public LRSInterpretteur() {
         // Obtenez la classe courante
         Class<?> classeCourante = this.getClass();
 
