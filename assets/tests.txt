@@ -1,0 +1,7 @@
+creer relation r1 : A lettres, B lettres;
+creer relation r2 : B lettres;
+ajouter dans r1 : ["a1", "x1"] ["a2", "x2"] ["a3", "x1"] ["a1", "x2"] ["a2", "x1"];
+ajouter dans r2 : ["x1"] ["x2"];
+choisir r1;
+choisir r2;
+choisir r1 division r2;
