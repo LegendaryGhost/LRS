@@ -391,22 +391,36 @@ public class Relation {
         return resultat;
     }
 
-    public Relation division(Relation relation2) {
+    public Relation division(Relation relation2) throws Exception {
         Relation resultat = new Relation(getNom());
         Vector<String> colsCommuns = getColonnesCommuns(relation2);
+        Vector<String> colsDifferentes = getColonnesDifferentes(relation2);
 
-        // Soit this = R1 et relation2 = R2
+        if (colsCommuns.size() == 0) {
+            throw new IllegalArgumentException("Aucune colonne en commun dans " + getNom() + " et " + relation2.getNom());
+        } else if (colsCommuns.size() != relation2.getColonnes().size()) {
+            throw new IllegalArgumentException("Division impossible : Il y a des colonnes dans " + relation2.getNom() + " qui sont absentes dans " + getNom());
+        } else if (colsDifferentes.size() == 0) {
+            throw new IllegalArgumentException("Aucune colonne en présente dans " + getNom() + " mais absente dans " + relation2.getNom() + " pour faire la division");
+        }
+
+        // Soit R1 = this et R2 = relation2
         // Récupérer la relation qui ne contient pas les colonnes de R2 à partir de R1
         // On appelera cette relation R3
+        // R3 = R1 sans les colonnes de R2
+        Relation r3 = projection(colsDifferentes);
 
         // Toutes les combinaisons possibles
         // R4 = R3 * R2
+        Relation r4 = r3.produitCart(relation2);
         
         // Les combinaisons absentes
         // R5 = R4 - R1
+        Relation r5 = r4.difference(this);
 
         // Le résultat
         // R6 = R4 - R5
+        resultat = r4.difference(r5);
 
         return resultat;
     }
@@ -416,6 +430,18 @@ public class Relation {
 
         for (String colonne : relation2.getColonnes()) {
             if (getColonnes().contains(colonne)) {
+                colsCommuns.add(colonne);
+            }
+        }
+
+        return colsCommuns;
+    }
+
+    public Vector<String> getColonnesDifferentes(Relation relation2) {
+        Vector<String> colsCommuns = new Vector<String>();
+
+        for (String colonne : getColonnes()) {
+            if (!relation2.getColonnes().contains(colonne)) {
                 colsCommuns.add(colonne);
             }
         }
@@ -535,6 +561,10 @@ public class Relation {
             System.out.println();
         }
         afficherSeparation(maxColsLong);
+    }
+
+    public Relation projection(Vector<String> colonnes) throws Exception {
+        return projection(colonnes.toArray(new String[colonnes.size()]));
     }
 
     public Relation projection(String[] colonnes) throws Exception {
