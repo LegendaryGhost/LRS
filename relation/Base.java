@@ -76,8 +76,28 @@ public class Base {
     public void selectionner(int limite, String nomRelation, ArbrePredicat predicats, String[] colonnes) throws Exception {
         Relation resultat = new Relation("resultat");
 
+        // TODO : Combinaison des opérations PRODUIT, JOITNURE et DIVISION
         if (Syntaxe.contientHG(nomRelation.toUpperCase(), "PRODUIT") && Syntaxe.contientHG(nomRelation.toUpperCase(), "JOINTURE")) {
             throw new Exception("Il est pour l'instant impossible de faire un produit cartésine et une jointure interne en même temps");
+        } else if (Syntaxe.contientHG(nomRelation.toUpperCase(), "DIVISION")) {
+            Vector<String> nomRelations = Syntaxe.separerHG(nomRelation, "DIVISION");
+
+            if (nomRelations.size() < 2) {
+                throw new Exception("L'opérateur DIVISION doit être entouré par 2 noms de relation");
+            } else if (nomRelations.size() != 2) {
+                throw new Exception("2 opérateurs DIVISION ne peuvent pas être combinés");
+            } else {
+                String nomR1 = nomRelations.get(0).trim(),
+                    nomR2 = nomRelations.get(1).trim();
+                
+                if (!contientRelation(nomR1)) {
+                    throw new Exception("La relation " + nomR1 + " est introuvable");                    
+                } else if (!contientRelation(nomR2)) {
+                    throw new Exception("La relation " + nomR2 + " est introuvable");                    
+                } else {
+                    resultat = getRelation(nomR1).division(getRelation(nomR2));
+                }
+            }
         } else if (Syntaxe.contientHG(nomRelation.toUpperCase(), "PRODUIT")) {
             Vector<String> nomRelations = Syntaxe.separerHG(nomRelation, "PRODUIT");
             Vector<Relation> relationsCart = new Vector<Relation>();

@@ -417,12 +417,32 @@ public class Relation {
         // Les combinaisons absentes
         // R5 = R4 - R1
         Relation r5 = r4.difference(this);
+        r5.retirerNomRel();
+        r5 = r5.projection(colsDifferentes);
 
         // Le résultat
         // R6 = R4 - R5
-        resultat = r4.difference(r5);
+        resultat = r3.difference(r5);
+
+        // Enlever les colonnes communes du résultat
+        resultat = resultat.projection(colsDifferentes);
 
         return resultat;
+    }
+
+    /**
+     * Retire le nom des relations des nom de colonnes
+     * Exemple : r1.A, r2.B => A, B
+     * NB : la méthode affecte l'instance
+     */
+    public void retirerNomRel() {
+        for (int index = 0; index < colonnes.size(); index++) {
+            String ancienNom = colonnes.get(index);
+            colonnes.set(
+                index,
+                ancienNom.substring(ancienNom.indexOf(".") + 1)
+            );
+        }
     }
 
     public Vector<String> getColonnesCommuns(Relation relation2) {
