@@ -92,9 +92,9 @@ public class LRSInterpretteur {
                     interpretter(commande.trim());
                 } catch (Throwable e) {
                     if (DEBUG) {
-                        System.err.println(e.getMessage());
-                    } else {
                         e.printStackTrace();
+                    } else {
+                        System.err.println(e.getMessage());
                     }
                 }
             }
