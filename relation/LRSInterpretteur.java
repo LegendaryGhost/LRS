@@ -15,6 +15,7 @@ import relation.syntaxe.Syntaxe;
 public class LRSInterpretteur {
 
     private final HashMap<String, String> COMMANDES_VALIDES = new HashMap<String, String>();
+    private final boolean DEBUG = true;
     private String CURRENT_DIR;
 
     private Base base = new Base();
@@ -90,8 +91,11 @@ public class LRSInterpretteur {
                 try {
                     interpretter(commande.trim());
                 } catch (Throwable e) {
-                    System.err.println(e.getMessage());
-                    // e.printStackTrace();
+                    if (DEBUG) {
+                        System.err.println(e.getMessage());
+                    } else {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
