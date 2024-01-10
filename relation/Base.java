@@ -69,11 +69,11 @@ public class Base {
         }
     }
 
-    public void selectionner(int limite, String nomRelation, ArbrePredicat predicats) throws Exception {
-        selectionner(limite, nomRelation, predicats, null);
+    public Relation selectionner(int limite, String nomRelation, ArbrePredicat predicats) throws Exception {
+        return selectionner(limite, nomRelation, predicats, null);
     }
 
-    public void selectionner(int limite, String nomRelation, ArbrePredicat predicats, String[] colonnes) throws Exception {
+    public Relation selectionner(int limite, String nomRelation, ArbrePredicat predicats, String[] colonnes) throws Exception {
         Relation resultat = new Relation("resultat");
 
         // TODO : Combinaison des opérations PRODUIT, JOITNURE et DIVISION
@@ -170,7 +170,7 @@ public class Base {
 
         resultat.limiterNbDonnees(limite);
 
-        resultat.afficherDonnees();
+        return resultat;
     }
 
 }
