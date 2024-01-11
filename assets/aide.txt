@@ -66,3 +66,6 @@ CHOISIR personne JOINTURE[personne.id = note.id_personne + 1] note[personne.nom,
 
 - Limite :
 CHOISIR personne LIMITE 10;
+
+- Sous-requêtes :
+CHOISIR (CHOISIR personne[id, nom]) PREDICATS personne.id > 10;

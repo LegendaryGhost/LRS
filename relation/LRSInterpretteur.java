@@ -122,12 +122,12 @@ public class LRSInterpretteur {
             try {
                 Method methode = this.getClass().getDeclaredMethod(nomMethode, String.class);
                 
-                // Invoque la méthode correpsondant à la commande tout en mettant le début de la commande en majuscule
+                // Invoque la méthode correpsondant à la commande tout en retirant le début de la commande
+                // CREER RELATION relation1 : id entier => relation1 : id entier
                 methode.invoke(this, commande.substring(cle.length()));
             } catch (java.lang.reflect.InvocationTargetException e) {
                 // System.err.println("Erreur lors de l'invocation de la méthode " + nomMethode);
-                Throwable cause = e.getCause();
-                throw cause;
+                throw e.getCause();
             }
         }
     }
@@ -206,10 +206,14 @@ public class LRSInterpretteur {
         }
     }
 
-    public void selectionner(String commande) throws Exception {
+    public Relation selectionner(String commande) throws Exception {
+        return selectionner(commande, true);
+    }
+
+    public Relation selectionner(String commande, boolean afficher) throws Exception {
         // Supprime les points-virgules et espaces en excédent
         String commandeTraitee = Syntaxe.remplacerHG(commande, ";", "").trim();
-    
+        Relation resultat = null;
         ArbrePredicat predicats = null;
         int limite = -1;
     
@@ -243,9 +247,29 @@ public class LRSInterpretteur {
             predicats = new ArbrePredicat(new NoeudPredicat(temps.get(1)));
             predicats.arrangerRacine();
         }
-    
-        // Vérifie la présence de crochets
-        if (avantPredicats.contains("[") && avantPredicats.contains("]")) {
+
+        // Vérifie la présence de parenthèses
+        if (Syntaxe.contientHG(avantPredicats,"(") || Syntaxe.contientHG(avantPredicats,")")) {
+            // Vérifie si les parenthèses sont correctement écrites, lance une exception en cas d'erreur
+            if (Syntaxe.verifierParenthesesHG(avantPredicats)) {
+                // Indice de la parenthèse ouvrante
+                int indiceOuvrant = Syntaxe.indiceCarOHG(avantPredicats, '(');
+                // Indice de la parenthèse fermant la première parenthèse ouvrante
+                int indiceFermant = Syntaxe.indiceCarFHG(avantPredicats, '(', ')');
+
+                // Si la parenthèse ouvrante se situe bien en début de chaîne et la fermante en fin de chaîne
+                if (indiceOuvrant == 0 && indiceFermant == avantPredicats.length() - 1) {
+                    Relation sousRelation = selectionner(avantPredicats.substring(1 + "CHOISIR".length(), indiceFermant).trim(), false);
+                    resultat = base.selectionner(limite, sousRelation, predicats);
+                } else if (indiceOuvrant != 0) {
+                    throw new Exception("Symbôle inconnu près de : " + avantPredicats.substring(0, indiceOuvrant + 1));
+                } else {
+                    throw new Exception("Opérateur manquant près de : " + avantPredicats);
+                }
+            }
+        } else if (avantPredicats.contains("[") && avantPredicats.contains("]")) {
+            // Vérifie la présence de crochets
+
             // Vérifie que le nombre de crochets ouverts et fermés est égal
             if (Syntaxe.compterCaractereHG(avantPredicats, '[') != Syntaxe.compterCaractereHG(avantPredicats, ']')) {
                 throw new Exception("Il y a des guillemets en trop dans : " + avantPredicats);
@@ -267,17 +291,23 @@ public class LRSInterpretteur {
                 }
     
                 // Appelle la méthode de sélection avec les paramètres correspondants
-                base.selectionner(limite, nomRelation, predicats, colonnes).afficherDonnees();
+                resultat = base.selectionner(limite, nomRelation, predicats, colonnes);
             }
         } else if (!avantPredicats.contains("[") && !avantPredicats.contains("]")) {
             // Si aucun crochet n'est présent, appelle la méthode de sélection avec les paramètres correspondants
             String nomRelation = avantPredicats.trim();
-            base.selectionner(limite, nomRelation, predicats).afficherDonnees();
+            resultat = base.selectionner(limite, nomRelation, predicats);
         } else {
-            // En cas d'erreur de syntaxe avec les crochets, lance une exception
+            // En cas d'erreur de syntaxe avec les crochets ou les parenthèses, lance une exception
             String pattern = commandeTraitee.contains("[") ? "[" : "]";
             throw new Exception("Erreur de syntaxe près de " + commande.substring(0, commande.indexOf(pattern) + 1));
         }
+
+        if (afficher) {
+            resultat.afficherDonnees();
+        }
+
+        return resultat;
     }
 
     public void creer(String commande) throws Exception {

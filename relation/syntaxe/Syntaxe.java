@@ -20,7 +20,7 @@ public class Syntaxe {
     };
 
     private static String[] caracteres_spec = {
-        "[", "]", ".", ";", " ", "/", "*", "%", "+", "-"
+        "[", "]", ".", ";", " ", "/", "*", "%", "+", "-", "(", ")"
     };
     private static String[] operateurs = {"/", "*", "%", "+", "-"};
 
@@ -44,7 +44,11 @@ public class Syntaxe {
 
     /**
      * Sépare les parties d'une chaîne entourées par des guillemets et celles qui ne le sont pas
-     * "\"test\", test2 \"test3\"" => {"\"test\"", ", test2 \", "\"test3\""}
+     * "\"test\", test2 \"test3\"" => {
+     *      "\"test\"",
+     *      ", test2 \",
+     *      "\"test3\""
+     * }
      * @param texte
      * @return
      */
@@ -87,13 +91,13 @@ public class Syntaxe {
         } else {
             String partie = "";
             while (!texte.equals("")) {
-                int indiceCO = indiceCOHG(texte);
+                int indiceCO = indiceCarOHG(texte, '[');
                 partie = texte.substring(0, indiceCO != -1 ? indiceCO : texte.length());
                 if (!partie.trim().equals("")) {
                     resultat.add(partie);
                 }
                 texte = indiceCO != -1 ? texte.substring(indiceCO) : "";
-                int indiceCF = indiceCFHG(texte);
+                int indiceCF = indiceCarFHG(texte, '[', ']');
                 if (!texte.equals("")) {
                     partie = texte.substring(0, indiceCF + 1);
                     if (!partie.trim().equals("")) {
@@ -129,29 +133,48 @@ public class Syntaxe {
         return resultat;
     }
 
-    public static int indiceCOHG(String texte) {
+    /**
+     * Retourne l'indice du premier caractère ouvrant en dehors des guillemets
+     * @param texte
+     * @param carOuvrant
+     * @return
+     */
+    public static int indiceCarOHG(String texte, char carOuvrant) {
         boolean ignore = false;
         for (int i = 0; i < texte.length(); i++) {
             if (texte.charAt(i) == '"') {
                 ignore = !ignore;
-            } else if (texte.charAt(i) == '[' && !ignore) {
+            } else if (texte.charAt(i) == carOuvrant && !ignore) {
                 return i;
             }
         }
         return -1;
     }
 
-    public static int indiceCFHG(String texte) {
+    /**
+     * Retourne l'indice du caratère fermant le premier caractère ouvrant qu'on a rencontré hors des guillemets
+     * Retourne l'indice de ")" qui fermet le premier "(" qu'on a rencontré hors des guillemets
+     * Exemple : indiceCarFHG(
+     *      "(1, \"2)\", 3)",
+     *      "(",
+     *      ")" 
+     * ) => 11      Il s'agit de l'indice du dernier ")"
+     * @param texte
+     * @param carOuvrant
+     * @param carFermant
+     * @return
+     */
+    public static int indiceCarFHG(String texte, char carOuvrant, char carFermant) {
         boolean ignore = false,
             crochet_rencontre = false;
         int profondeur = 0;
         for (int i = 0; i < texte.length(); i++) {
             if (texte.charAt(i) == '"') {
                 ignore = !ignore;
-            } else if (texte.charAt(i) == '[' && !ignore) {
+            } else if (texte.charAt(i) == carOuvrant && !ignore) {
                 crochet_rencontre = true;
                 profondeur++;
-            } else if (texte.charAt(i) == ']' && !ignore) {
+            } else if (texte.charAt(i) == carFermant && !ignore) {
                 profondeur--;
             }
             if (crochet_rencontre && profondeur == 0) {
@@ -184,6 +207,13 @@ public class Syntaxe {
         return resultat;
     }
 
+    /**
+     * Split hors guillemets tout en trimant chaque partie
+     * @param texte
+     * @param regex
+     * @return
+     * @throws Exception
+     */
     public static Vector<String> separerHG(String texte, String regex) throws Exception {
         return separerHG(texte, regex, true);
     }
@@ -398,6 +428,32 @@ public class Syntaxe {
             }
         }
         return false;
+    }
+
+    // Vérifier si les parenthèses en dehors des guillemets sans correctements écrites
+    public static boolean verifierParenthesesHG(String texte) {
+        int profondeur = 0;
+        boolean ignore = false;
+        for (int i = 0; i < texte.length(); i++) {
+            char car = texte.charAt(i);
+            if (car == '"') {
+                ignore = !ignore;
+            } else if (car == '(' && !ignore) {
+                profondeur++;
+            } else if (car == ')' && !ignore) {
+                profondeur--;
+            }
+
+            if (profondeur < 0) {
+                throw new IllegalArgumentException("Il y a une parenthèse fermante en trop près de " + texte.substring(i));
+            }
+        }
+        
+        if (profondeur != 0) {
+            throw new IllegalArgumentException("Il y a une parenthèse ouvrante en trop près de " + texte);
+        }
+
+        return true;
     }
 
 }
