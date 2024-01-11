@@ -69,15 +69,25 @@ public class Base {
         }
     }
 
+    public Relation selectionner(int limite, Relation source, ArbrePredicat predicats) throws Exception {
+        return selectionner(limite, "", predicats, null, source);
+    }
+
     public Relation selectionner(int limite, String nomRelation, ArbrePredicat predicats) throws Exception {
-        return selectionner(limite, nomRelation, predicats, null);
+        return selectionner(limite, nomRelation, predicats, null, null);
     }
 
     public Relation selectionner(int limite, String nomRelation, ArbrePredicat predicats, String[] colonnes) throws Exception {
-        Relation resultat = new Relation("resultat");
+        return selectionner(limite, nomRelation, predicats, colonnes, null);
+    }
 
-        // TODO : Combinaison des opérations PRODUIT, JOITNURE et DIVISION
-        if (Syntaxe.contientHG(nomRelation.toUpperCase(), "PRODUIT") && Syntaxe.contientHG(nomRelation.toUpperCase(), "JOINTURE")) {
+    public Relation selectionner(int limite, String nomRelation, ArbrePredicat predicats, String[] colonnes, Relation source) throws Exception {
+        Relation resultat = null;
+
+        if (source != null) {
+            resultat = source;
+            // TODO : Combinaison des opérations PRODUIT, JOITNURE et DIVISION
+        } else if (Syntaxe.contientHG(nomRelation.toUpperCase(), "PRODUIT") && Syntaxe.contientHG(nomRelation.toUpperCase(), "JOINTURE")) {
             throw new Exception("Il est pour l'instant impossible de faire un produit cartésine et une jointure interne en même temps");
         } else if (Syntaxe.contientHG(nomRelation.toUpperCase(), "DIVISION")) {
             Vector<String> nomRelations = Syntaxe.separerHG(nomRelation, "DIVISION");
