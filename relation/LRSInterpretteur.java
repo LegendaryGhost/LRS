@@ -155,7 +155,7 @@ public class LRSInterpretteur {
                 if (partiesHG.size() > 0) {
                     throw new Exception("Chaque nouvelle ligne doit être entourée par des crochets");
                 } else {
-                    Vector<String> lignes = Syntaxe.obtenirPartiesDansGHC(donnees_non_formattees);
+                    Vector<String> lignes = Syntaxe.obtenirPartiesHGDansC(donnees_non_formattees);
                     for (int j = 0; j < lignes.size(); j++) {
                         Vector<Object> vectorLigne = new Vector<Object>();
                         Vector<String> cellules = Syntaxe.separerHG(lignes.get(j).substring(1, lignes.get(j).length() - 1), ",");
@@ -171,11 +171,11 @@ public class LRSInterpretteur {
             }
 
             if (info_relation.contains("[") && info_relation.contains("]")) {
-                if (Syntaxe.obtenirPartiesDansGHC(info_relation).size() == 1) {
+                if (Syntaxe.obtenirPartiesHGDansC(info_relation).size() == 1) {
                     Vector<String> nom_colonnes = Syntaxe.separerHG(
-                        Syntaxe.obtenirPartiesDansGHC(info_relation).get(0).substring(
+                        Syntaxe.obtenirPartiesHGDansC(info_relation).get(0).substring(
                             1,
-                            Syntaxe.obtenirPartiesDansGHC(info_relation).get(0).length() - 1
+                            Syntaxe.obtenirPartiesHGDansC(info_relation).get(0).length() - 1
                         ),
                         ","
                     );
@@ -217,9 +217,9 @@ public class LRSInterpretteur {
         ArbrePredicat predicats = null;
         int limite = -1;
     
-        // Vérifie la présence de "LIMITE" dans la commande
-        if (Syntaxe.contientHG(commandeTraitee.toUpperCase(), " LIMITE ")) {
-            Vector<String> partieLimites = Syntaxe.separerHG(commandeTraitee, " LIMITE ");
+        // Vérifie la présence de "LIMITE" dans la commande en dehors des parenthèses
+        if (Syntaxe.contientHGHP(commandeTraitee.toUpperCase(), " LIMITE ")) {
+            Vector<String> partieLimites = Syntaxe.separerHGHP(commandeTraitee, " LIMITE ");
     
             // Vérifie qu'il y a au plus une occurrence de "LIMITE"
             if (partieLimites.size() > 2) {
@@ -236,7 +236,7 @@ public class LRSInterpretteur {
         }
     
         // Sépare la partie avant "PREDICATS" de la commande
-        Vector<String> temps = Syntaxe.separerHG(commandeTraitee, " PREDICATS ");
+        Vector<String> temps = Syntaxe.separerHGHP(commandeTraitee, " PREDICATS ");
         String avantPredicats = temps.get(0);
     
         // Vérifie qu'il n'y a au plus une occurrence de "PREDICATS"
