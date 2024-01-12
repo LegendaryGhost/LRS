@@ -205,6 +205,45 @@ public class LRSInterpretteur {
             throw new Exception("Erreur de syntaxe près de \":" + parties.get(2) + "\"");
         }
     }
+    
+    public Relation selectionnerCombinaison(String commande) throws Exception {
+        String comOp = "";
+        Vector<String> sousRequetes = null;
+        String sousRequete = null;
+        Relation resultat = null;
+        if (Syntaxe.contientHGHP(commande.toUpperCase(), " INTERSECTION ")) {
+            comOp = "INTERSECTION";
+        } else if (Syntaxe.contientHGHP(commande.toUpperCase(), " DIFFERENCE ")) {
+            comOp = "DIFFERENCE";            
+        } else {
+            comOp = "UNION";
+        }
+
+        sousRequetes = Syntaxe.separerHGHP(commande, comOp);
+        resultat = selectionner(sousRequetes.get(0), false);
+
+        for (int i = 1; i < sousRequetes.size(); i++) {
+            sousRequete = sousRequetes.get(i);
+            switch (comOp) {
+                case "INTERSECTION":
+                    resultat = resultat.intersection(selectionner(sousRequete, false));
+                    break;
+            
+                case "DIFFERENCE":
+                    resultat = resultat.difference(selectionner(sousRequete, false));
+                    break;
+            
+                case "UNION":
+                    resultat = resultat.union(selectionner(sousRequete, false));
+                    break;
+            
+                default:
+                    break;
+            }
+        }
+
+        return resultat;
+    }
 
     public Relation selectionner(String commande) throws Exception {
         return selectionner(commande, true);
@@ -216,91 +255,103 @@ public class LRSInterpretteur {
         Relation resultat = null;
         ArbrePredicat predicats = null;
         int limite = -1;
-    
-        // Vérifie la présence de "LIMITE" dans la commande en dehors des parenthèses
-        if (Syntaxe.contientHGHP(commandeTraitee.toUpperCase(), " LIMITE ")) {
-            Vector<String> partieLimites = Syntaxe.separerHGHP(commandeTraitee, " LIMITE ");
-    
-            // Vérifie qu'il y a au plus une occurrence de "LIMITE"
-            if (partieLimites.size() > 2) {
-                throw new Exception("La commande ne doit pas contenir plusieurs symboles : LIMITE");
-            } else {
-                try {
-                    limite = Integer.parseInt(partieLimites.get(1).trim());
-                    commandeTraitee = partieLimites.get(0).trim();
-                } catch (Exception e) {
-                    System.out.println("\"" + partieLimites.get(1).trim() + "\"");
-                    throw new Exception("Limite invalide");
-                }
-            }
-        }
-    
-        // Sépare la partie avant "PREDICATS" de la commande
-        Vector<String> temps = Syntaxe.separerHGHP(commandeTraitee, " PREDICATS ");
-        String avantPredicats = temps.get(0);
-    
-        // Vérifie qu'il n'y a au plus une occurrence de "PREDICATS"
-        if (temps.size() > 2) {
-            throw new Exception("La commande ne doit pas contenir plusieurs symboles : PREDICATS");
-        } else if (temps.size() == 2) {
-            // Crée un arbre de prédicats si nécessaire
-            predicats = new ArbrePredicat(new NoeudPredicat(temps.get(1)));
-            predicats.arrangerRacine();
+
+        if (commandeTraitee.toUpperCase().startsWith("CHOISIR ")) {
+            commandeTraitee = commandeTraitee.substring("CHOISIR ".length());
         }
 
-        // Vérifie la présence de parenthèses
-        if (Syntaxe.contientHG(avantPredicats,"(") || Syntaxe.contientHG(avantPredicats,")")) {
-            // Vérifie si les parenthèses sont correctement écrites, lance une exception en cas d'erreur
-            if (Syntaxe.verifierParenthesesHG(avantPredicats)) {
-                // Indice de la parenthèse ouvrante
-                int indiceOuvrant = Syntaxe.indiceCarOHG(avantPredicats, '(');
-                // Indice de la parenthèse fermant la première parenthèse ouvrante
-                int indiceFermant = Syntaxe.indiceCarFHG(avantPredicats, '(', ')');
-
-                // Si la parenthèse ouvrante se situe bien en début de chaîne et la fermante en fin de chaîne
-                if (indiceOuvrant == 0 && indiceFermant == avantPredicats.length() - 1) {
-                    Relation sousRelation = selectionner(avantPredicats.substring(1 + "CHOISIR".length(), indiceFermant).trim(), false);
-                    resultat = base.selectionner(limite, sousRelation, predicats);
-                } else if (indiceOuvrant != 0) {
-                    throw new Exception("Symbôle inconnu près de : " + avantPredicats.substring(0, indiceOuvrant + 1));
+        if (
+            Syntaxe.contientHGHP(commande.toUpperCase(), " UNION ") ||
+            Syntaxe.contientHGHP(commande.toUpperCase(), " INTERSECTION ") ||
+            Syntaxe.contientHGHP(commande.toUpperCase(), " DIFFERENCE ")
+        ) {
+            resultat = selectionnerCombinaison(commandeTraitee);
+        } else {
+            // Vérifie la présence de "LIMITE" dans la commande en dehors des parenthèses
+            if (Syntaxe.contientHGHP(commandeTraitee.toUpperCase(), " LIMITE ")) {
+                Vector<String> partieLimites = Syntaxe.separerHGHP(commandeTraitee, " LIMITE ");
+        
+                // Vérifie qu'il y a au plus une occurrence de "LIMITE"
+                if (partieLimites.size() > 2) {
+                    throw new Exception("La commande ne doit pas contenir plusieurs symboles : LIMITE");
                 } else {
-                    throw new Exception("Opérateur manquant près de : " + avantPredicats);
-                }
-            }
-        } else if (avantPredicats.contains("[") && avantPredicats.contains("]")) {
-            // Vérifie la présence de crochets
-
-            // Vérifie que le nombre de crochets ouverts et fermés est égal
-            if (Syntaxe.compterCaractereHG(avantPredicats, '[') != Syntaxe.compterCaractereHG(avantPredicats, ']')) {
-                throw new Exception("Il y a des guillemets en trop dans : " + avantPredicats);
-            } else {
-                String[] colonnes = null;
-                String nomRelation = avantPredicats;
-    
-                // Traite les crochets pour extraire les colonnes et le nom de la relation
-                if (avantPredicats.endsWith("]")) {
-                    colonnes = avantPredicats.substring(avantPredicats.lastIndexOf("[") + 1, avantPredicats.lastIndexOf("]")).split(",");
-                    nomRelation = avantPredicats.substring(0, avantPredicats.lastIndexOf("[")).trim();
-                }
-    
-                // Si des colonnes sont présentes, les trim et les assigne
-                if (colonnes != null) {
-                    for (int i = 0; i < colonnes.length; i++) {
-                        colonnes[i] = colonnes[i].trim();
+                    try {
+                        limite = Integer.parseInt(partieLimites.get(1).trim());
+                        commandeTraitee = partieLimites.get(0).trim();
+                    } catch (Exception e) {
+                        System.out.println("\"" + partieLimites.get(1).trim() + "\"");
+                        throw new Exception("Limite invalide");
                     }
                 }
-    
-                // Appelle la méthode de sélection avec les paramètres correspondants
-                resultat = base.selectionner(limite, nomRelation, predicats, colonnes);
             }
-        } else if (!avantPredicats.contains("[") && !avantPredicats.contains("]")) {
-            // Si aucun crochet n'est présent, appelle la méthode de sélection avec les paramètres correspondants
-            String nomRelation = avantPredicats.trim();
-            resultat = base.selectionner(limite, nomRelation, predicats);
-        } else {
-            // En cas d'erreur de syntaxe avec les crochets ou les parenthèses, lance une exception
-            String pattern = commandeTraitee.contains("[") ? "[" : "]";
-            throw new Exception("Erreur de syntaxe près de " + commande.substring(0, commande.indexOf(pattern) + 1));
+        
+            // Sépare la partie avant "PREDICATS" de la commande
+            Vector<String> temps = Syntaxe.separerHGHP(commandeTraitee, " PREDICATS ");
+            String avantPredicats = temps.get(0);
+        
+            // Vérifie qu'il n'y a au plus une occurrence de "PREDICATS"
+            if (temps.size() > 2) {
+                throw new Exception("La commande ne doit pas contenir plusieurs symboles : PREDICATS");
+            } else if (temps.size() == 2) {
+                // Crée un arbre de prédicats si nécessaire
+                predicats = new ArbrePredicat(new NoeudPredicat(temps.get(1)));
+                predicats.arrangerRacine();
+            }
+
+            // Vérifie la présence de parenthèses
+            if (Syntaxe.contientHG(avantPredicats,"(") || Syntaxe.contientHG(avantPredicats,")")) {
+                // Vérifie si les parenthèses sont correctement écrites, lance une exception en cas d'erreur
+                if (Syntaxe.verifierParenthesesHG(avantPredicats)) {
+                    // Indice de la parenthèse ouvrante
+                    int indiceOuvrant = Syntaxe.indiceCarOHG(avantPredicats, '(');
+                    // Indice de la parenthèse fermant la première parenthèse ouvrante
+                    int indiceFermant = Syntaxe.indiceCarFHG(avantPredicats, '(', ')');
+
+                    // Si la parenthèse ouvrante se situe bien en début de chaîne et la fermante en fin de chaîne
+                    if (indiceOuvrant == 0 && indiceFermant == avantPredicats.length() - 1) {
+                        Relation sousRelation = selectionner(avantPredicats.substring(1 + "CHOISIR".length(), indiceFermant).trim(), false);
+                        resultat = base.selectionner(limite, sousRelation, predicats);
+                    } else if (indiceOuvrant != 0) {
+                        throw new Exception("Symbôle inconnu près de : " + avantPredicats.substring(0, indiceOuvrant + 1));
+                    } else {
+                        throw new Exception("Opérateur manquant près de : " + avantPredicats);
+                    }
+                }
+            } else if (avantPredicats.contains("[") && avantPredicats.contains("]")) {
+                // Vérifie la présence de crochets
+
+                // Vérifie que le nombre de crochets ouverts et fermés est égal
+                if (Syntaxe.compterCaractereHG(avantPredicats, '[') != Syntaxe.compterCaractereHG(avantPredicats, ']')) {
+                    throw new Exception("Il y a des guillemets en trop dans : " + avantPredicats);
+                } else {
+                    String[] colonnes = null;
+                    String nomRelation = avantPredicats;
+        
+                    // Traite les crochets pour extraire les colonnes et le nom de la relation
+                    if (avantPredicats.endsWith("]")) {
+                        colonnes = avantPredicats.substring(avantPredicats.lastIndexOf("[") + 1, avantPredicats.lastIndexOf("]")).split(",");
+                        nomRelation = avantPredicats.substring(0, avantPredicats.lastIndexOf("[")).trim();
+                    }
+        
+                    // Si des colonnes sont présentes, les trim et les assigne
+                    if (colonnes != null) {
+                        for (int i = 0; i < colonnes.length; i++) {
+                            colonnes[i] = colonnes[i].trim();
+                        }
+                    }
+        
+                    // Appelle la méthode de sélection avec les paramètres correspondants
+                    resultat = base.selectionner(limite, nomRelation, predicats, colonnes);
+                }
+            } else if (!avantPredicats.contains("[") && !avantPredicats.contains("]")) {
+                // Si aucun crochet n'est présent, appelle la méthode de sélection avec les paramètres correspondants
+                String nomRelation = avantPredicats.trim();
+                resultat = base.selectionner(limite, nomRelation, predicats);
+            } else {
+                // En cas d'erreur de syntaxe avec les crochets ou les parenthèses, lance une exception
+                String pattern = commandeTraitee.contains("[") ? "[" : "]";
+                throw new Exception("Erreur de syntaxe près de " + commande.substring(0, commande.indexOf(pattern) + 1));
+            }
         }
 
         if (afficher) {

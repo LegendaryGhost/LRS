@@ -69,3 +69,12 @@ CHOISIR personne LIMITE 10;
 
 - Sous-requêtes :
 CHOISIR (CHOISIR personne[id, nom]) PREDICATS personne.id > 10;
+
+- Union :
+CHOISIR personne UNION CHOISIR etudiant;
+
+- Différence :
+CHOISIR personne DIFFERENCE CHOISIR etudiant;
+
+- Intersection :
+CHOISIR personne INTERSECTION CHOISIR etudiant;

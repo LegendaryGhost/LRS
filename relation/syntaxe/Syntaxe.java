@@ -16,7 +16,10 @@ public class Syntaxe {
         "PRODUIT",
         "OU",
         "NON",
-        "LIMITE"
+        "LIMITE",
+        "UNION",
+        "DIFFERENCE",
+        "INTERSECTION"
     };
 
     private static String[] caracteres_spec = {

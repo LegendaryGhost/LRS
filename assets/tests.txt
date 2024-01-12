@@ -10,3 +10,12 @@ choisir r1 division r2;
 -------------------------------- Test sous-requêtes --------------------------------
 choisir (choisir note[id_etudiant, matiere, valeur]) predicats matiere = "Maths";
 choisir (choisir note[id_etudiant, matiere, valeur] predicats id_etudiant = 3) limite 1;
+
+-------------------------------- Test union --------------------------------
+CHOISIR personne UNION CHOISIR etudiant;
+
+-------------------------------- Test différence --------------------------------
+CHOISIR personne DIFFERENCE CHOISIR etudiant;
+
+-------------------------------- Test intersection --------------------------------
+CHOISIR personne INTERSECTION CHOISIR etudiant;
