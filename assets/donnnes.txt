@@ -10,7 +10,8 @@ CREER RELATION etudiant : id entier, nom lettres;
 
 AJOUTER DANS etudiant :
     [2, "Ryan"]
-    [3, "Ny Ony"];
+    [3, "Ny Ony"]
+    [5, "Mialy"];
 
 CREER RELATION note :
     id entier,

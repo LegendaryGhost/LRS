@@ -73,7 +73,7 @@ public class LRSInterpretteur {
 
     private void accueil() {
         // Spécifiez le chemin du fichier que vous souhaitez lire
-        String cheminFichier = CURRENT_DIR + "/../assets/accueil.txt";
+        String cheminFichier = CURRENT_DIR + "/../../assets/accueil.txt";
 
         afficherFichier(cheminFichier);
     }
@@ -83,7 +83,11 @@ public class LRSInterpretteur {
             System.out.print("\t#=====>");
             String ligne = sc.nextLine();
             ligne = ligne.trim();
-            inputBuffer.append(ligne).append(" ");
+
+            // N'ajoute pas les lignes commentées
+            if (!ligne.startsWith("--")) {
+                inputBuffer.append(ligne).append(" ");    
+            }
 
             if(ligne.contains(";") && !inputBuffer.toString().trim().isEmpty()) {
                 String commande = inputBuffer.toString().trim();
@@ -418,7 +422,7 @@ public class LRSInterpretteur {
         String reste = commande.replace(";", "").trim();
         if (reste.equals("")) {
             System.out.println();
-            String cheminFichier = CURRENT_DIR + "/../assets/aide.txt";
+            String cheminFichier = CURRENT_DIR + "/../../assets/aide.txt";
 
             afficherFichier(cheminFichier);
         } else {
