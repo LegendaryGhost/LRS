@@ -85,26 +85,30 @@ public class Syntaxe {
     }
 
     public static Vector<String> obtenirPartiesParCrochet(String texte) {
+        return obtenirPartiesParCar(texte, '[', ']');
+    }
+
+    public static Vector<String> obtenirPartiesParCar(String texte, char carOuvrant, char carFermant) {
         Vector<String> resultat = new Vector<String>();
-        if (compterCaractereHG(texte, '[') != compterCaractereHG(texte, ']')) {
-            throw new IllegalArgumentException("Il y a des crochets en trop dans : " + texte);
+        if (compterCaractereHG(texte, carOuvrant) != compterCaractereHG(texte, carFermant)) {
+            throw new IllegalArgumentException("Il y a des caractères (" + carOuvrant + " ou " + carFermant +") en trop dans : " + texte);
         } else {
             String partie = "";
             while (!texte.equals("")) {
-                int indiceCO = indiceCarOHG(texte, '[');
-                partie = texte.substring(0, indiceCO != -1 ? indiceCO : texte.length());
+                int indiceCarO = indiceCarOHG(texte, carOuvrant);
+                partie = texte.substring(0, indiceCarO != -1 ? indiceCarO : texte.length());
                 if (!partie.trim().equals("")) {
                     resultat.add(partie);
                 }
-                texte = indiceCO != -1 ? texte.substring(indiceCO) : "";
-                int indiceCF = indiceCarFHG(texte, '[', ']');
+                texte = indiceCarO != -1 ? texte.substring(indiceCarO) : "";
+                int indiceCarF = indiceCarFHG(texte, carOuvrant, carFermant);
                 if (!texte.equals("")) {
-                    partie = texte.substring(0, indiceCF + 1);
+                    partie = texte.substring(0, indiceCarF + 1);
                     if (!partie.trim().equals("")) {
                         resultat.add(partie);
                     }
                 }
-                texte = indiceCF != -1 ? texte.substring(indiceCF + 1) : "";
+                texte = indiceCarF != -1 ? texte.substring(indiceCarF + 1) : "";
             }
         }
         
@@ -112,17 +116,21 @@ public class Syntaxe {
     }
 
     public static Vector<String> obtenirPartiesHGHC(String texte) {
-        Vector<String> paritesPC = obtenirPartiesParCrochet(texte);
+        return obtenirPartiesHGHCar(texte, '[', ']');
+    }
+
+    public static Vector<String> obtenirPartiesHGHCar(String texte, char carOuvrant, char carFermant) {
+        Vector<String> paritesPCar = obtenirPartiesParCar(texte, carOuvrant, carFermant);
         Vector<String> resultat = new Vector<String>();
-        for (int i = 0; i < paritesPC.size(); i++) {
-            if (!paritesPC.get(i).startsWith("[")) {
-                resultat.add(paritesPC.get(i));   
+        for (String partiePCar : paritesPCar) {
+            if (!partiePCar.startsWith(String.valueOf(carOuvrant))) {
+                resultat.add(partiePCar);   
             }
         }
         return resultat;
     }
 
-    public static Vector<String> obtenirPartiesDansGHC(String texte) {
+    public static Vector<String> obtenirPartiesHGDansC(String texte) {
         Vector<String> paritesPC = obtenirPartiesParCrochet(texte);
         Vector<String> resultat = new Vector<String>();
         for (int i = 0; i < paritesPC.size(); i++) {
@@ -305,52 +313,64 @@ public class Syntaxe {
      * @throws Exception
      */
     public static Vector<String> separerHGHC(String texte, String regex, boolean trim) throws Exception {
+        return separerHGHCar(texte, regex, '[', ']', trim);
+    }
+
+    public static Vector<String> separerHGHP(String texte, String regex) throws Exception {
+        return separerHGHP(texte, regex, true);
+    }
+
+    public static Vector<String> separerHGHP(String texte, String regex, boolean trim) throws Exception {
+        return separerHGHCar(texte, regex, '(', ')', trim);
+    }
+
+    public static Vector<String> separerHGHCar(String texte, String regex, char carOuvrant, char carFermant, boolean trim) throws Exception {
         Vector<String> resultat = new Vector<String>();
 
-        if (!contientHG(texte, "[")) {
+        if (!contientHG(texte, String.valueOf(carOuvrant))) {
             for (String partie : separerHG(texte, regex)) {
                 resultat.add(partie);
             }
-        } else if (compterCaractereHG(texte, '[') != compterCaractereHG(texte, ']')) {
-            throw new IllegalArgumentException("Il y a des crochets en trop dans " + texte);
+        } else if (compterCaractereHG(texte, carOuvrant) != compterCaractereHG(texte, carFermant)) {
+            throw new IllegalArgumentException("Il y a des caractères (" + carOuvrant + " ou " + carFermant +") en trop dans : " + texte);
         } else {
-            Vector<String> parties = obtenirPartiesParCrochet(texte);
+            Vector<String> parties = obtenirPartiesParCar(texte, carOuvrant, carFermant);
             for (int i = 0; i < parties.size(); i++) {
                 String partie = parties.get(i);
-                if (partie.startsWith("[")) {
+                if (partie.startsWith(String.valueOf(carOuvrant))) {
                     if (i == 0) {
                         resultat.add(partie);
                     } else {
-                        int dernier_indice = resultat.size() - 1;
-                        resultat.set(dernier_indice,  resultat.get(dernier_indice) + partie);
+                        int dernierIndice = resultat.size() - 1;
+                        resultat.set(dernierIndice,  resultat.get(dernierIndice) + partie);
                     }
                 } else {
-                    Vector<String> sous_parties = new Vector<String>();
+                    Vector<String> sousParties = new Vector<String>();
                     // if (partie.toUpperCase().startsWith(regex)) {
                     //     sous_parties.add("");
                     // }
-                    for (String sous_partie : separerHG(partie, regex, false)) {
-                        sous_parties.add(sous_partie);
+                    for (String sousPartie : separerHG(partie, regex, false)) {
+                        sousParties.add(sousPartie);
                     }
                     // if (partie.toUpperCase().endsWith(regex)) {
                     //     sous_parties.add("");
                     // }
                     
-                    if (sous_parties.size() == 0) {
-                        sous_parties = new Vector<String>();
-                        sous_parties.add("");
-                        sous_parties.add("");
+                    if (sousParties.size() == 0) {
+                        sousParties = new Vector<String>();
+                        sousParties.add("");
+                        sousParties.add("");
                     }
 
                     if (i == 0) {
-                        resultat.add(sous_parties.get(0));
+                        resultat.add(sousParties.get(0));
                     } else {
-                        int dernier_indice = resultat.size() - 1;
-                        resultat.set(dernier_indice,  resultat.get(dernier_indice) + sous_parties.get(0));
+                        int dernierIndice = resultat.size() - 1;
+                        resultat.set(dernierIndice,  resultat.get(dernierIndice) + sousParties.get(0));
                     }
 
-                    for (int j = 1; j < sous_parties.size(); j++) {
-                        resultat.add(sous_parties.get(j));
+                    for (int j = 1; j < sousParties.size(); j++) {
+                        resultat.add(sousParties.get(j));
                     }
                 }
             }
@@ -385,14 +405,22 @@ public class Syntaxe {
         return false;
     }
 
+    public static boolean contientHGHP(String texte, String patterne) throws Exception {
+        return contientHGHCar(texte, patterne, '(', ')');
+    }
+
     public static boolean contientHGHC(String texte, String patterne) throws Exception {
-        if (!texte.contains("[")) {
+        return contientHGHCar(texte, patterne, '[', ']');
+    }
+
+    public static boolean contientHGHCar(String texte, String patterne, char carOuvrant, char carFermant) throws Exception {
+        if (!texte.contains(String.valueOf(carOuvrant))) {
             return contientHG(texte, patterne);
-        } else if (compterCaractereHG(texte, '[') != compterCaractereHG(texte, ']')) {
-            throw new IllegalArgumentException("Il y a des crochets en trop dans " + texte);
+        } else if (compterCaractereHG(texte, carOuvrant) != compterCaractereHG(texte, carFermant)) {
+            throw new IllegalArgumentException("Il y a des caractères(" + carOuvrant + " ou " + carFermant + ") en trop dans " + texte);
         } else {
-            // Les parties de la chaîne "texte" qui ne sont pas entourées par des guillemets
-            Vector<String> parties_valides = obtenirPartiesHGHC(texte);
+            // Les parties de la chaîne "texte" qui ne sont pas entourées par des caractères d'ouverture et de fermeture
+            Vector<String> parties_valides = obtenirPartiesHGHCar(texte, carOuvrant, carFermant);
             for (String partie : parties_valides) {
                 if (partie.contains(patterne)) {
                     return true;
