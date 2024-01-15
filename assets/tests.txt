@@ -1,3 +1,6 @@
+-------------------------------- Test prédicats imbriqués --------------------------------
+CHOISIR note PREDICATS id > ((2 + 2) / (5 - 3)) ET ((valeur > 10 OU matiere != "Maths") OU id_etudiant = 4);
+
 -------------------------------- Test division --------------------------------
 creer relation r1 : A lettres, B lettres;
 creer relation r2 : B lettres;

@@ -26,7 +26,7 @@ public class NoeudOperation {
 
     private String getOperateur() throws Exception {
         for (String operateur : operateurs) {
-            if (Syntaxe.contientHGHC(valeur, operateur)) {
+            if (Syntaxe.contientHGHP(valeur, operateur)) {
                 return operateur;
             }
         }
@@ -48,11 +48,11 @@ public class NoeudOperation {
                 }
             }
             valeur = operateur;
-        } else if (Syntaxe.compterCaractereHG(valeur, '[') == 1 && Syntaxe.compterCaractere(valeur, ']') == 1) {
+        } else if (Syntaxe.indiceCarOHG(valeur, '(') == 0 && Syntaxe.indiceCarFHG(valeur, '(', ')') == valeur.length() - 1) {
             valeur = valeur.trim().substring(1, valeur.length() - 1).trim();
             arranger();
-        } else if (Syntaxe.contientHG(valeur, "[") && Syntaxe.contientHG(valeur, "]")) {
-            throw new Exception("Un opérateur logique tel que \" OU \" ou \" ET \" doit se trouver entre 2 groupes de prédicats comme ceci : [prédicats] OU [prédicats]");
+        } else if (Syntaxe.contientHG(valeur, "(") && Syntaxe.contientHG(valeur, ")")) {
+            throw new Exception("Il y a un opérateur manquant dans " + valeurInitiale);
         }
 
         for (NoeudOperation noeudPredicat : enfants) {

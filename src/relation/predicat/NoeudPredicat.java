@@ -20,26 +20,27 @@ public class NoeudPredicat {
     }
 
     public void arranger() throws Exception {
-        if (Syntaxe.contientHGHC(valeur.toUpperCase(), " OU ")) {
-            for (String partie : Syntaxe.separerHGHC(valeur, " OU ", false)) {
+        if (Syntaxe.contientHGHP(valeur.toUpperCase(), " OU ")) {
+            for (String partie : Syntaxe.separerHGHP(valeur, " OU ", false)) {
                 if (!partie.trim().equals("")) {
                     enfants.add(new NoeudPredicat(partie.trim()));
                 }
             }
             valeur = "OU";
-        } else if (Syntaxe.contientHGHC(valeur.toUpperCase(), " ET ")) {
-            for (String partie : Syntaxe.separerHGHC(valeur, " ET ", false)) {
+        } else if (Syntaxe.contientHGHP(valeur.toUpperCase(), " ET ")) {
+            for (String partie : Syntaxe.separerHGHP(valeur, " ET ", false)) {
                 if (!partie.trim().equals("")) {
                     enfants.add(new NoeudPredicat(partie.trim()));
                 }
             }
             valeur = "ET";
-        } else if (Syntaxe.compterCaractereHG(valeur, '[') == 1 && Syntaxe.compterCaractereHG(valeur, ']') == 1) {
+        } else if (Syntaxe.indiceCarOHG(valeur, '(') == 0 && Syntaxe.indiceCarFHG(valeur, '(', ')') == valeur.length() - 1) {
             valeur = valeur.trim().substring(1, valeur.length() - 1).trim();
             arranger();
-        } else if (Syntaxe.contientHG(valeur, "[") && Syntaxe.contientHG(valeur, "]")) {
-            throw new Exception("Un opérateur logique tel que \" OU \" ou \" ET \" doit se trouver entre 2 groupes de prédicats comme ceci : [prédicats] OU [prédicats]");
         }
+        // else if (Syntaxe.contientHG(valeur, "(") && Syntaxe.contientHG(valeur, ")")) {
+        //     throw new Exception("Un opérateur logique tel que \" OU \" ou \" ET \" doit se trouver entre 2 groupes de prédicats comme ceci : [prédicats] OU [prédicats]");
+        // }
 
         for (NoeudPredicat noeudPredicat : enfants) {
             noeudPredicat.arranger();

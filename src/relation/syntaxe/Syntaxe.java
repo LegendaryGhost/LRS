@@ -114,7 +114,7 @@ public class Syntaxe {
                 texte = indiceCarF != -1 ? texte.substring(indiceCarF + 1) : "";
             }
         }
-        
+
         return resultat;
     }
 
@@ -330,7 +330,7 @@ public class Syntaxe {
     public static Vector<String> separerHGHCar(String texte, String regex, char carOuvrant, char carFermant, boolean trim) throws Exception {
         Vector<String> resultat = new Vector<String>();
 
-        if (!contientHG(texte, String.valueOf(carOuvrant))) {
+        if (!contientHG(texte, String.valueOf(carOuvrant)) && !contientHG(texte, String.valueOf(carFermant))) {
             for (String partie : separerHG(texte, regex)) {
                 resultat.add(partie);
             }
@@ -340,7 +340,7 @@ public class Syntaxe {
             Vector<String> parties = obtenirPartiesParCar(texte, carOuvrant, carFermant);
             for (int i = 0; i < parties.size(); i++) {
                 String partie = parties.get(i);
-                if (partie.startsWith(String.valueOf(carOuvrant))) {
+                if (partie.startsWith(String.valueOf(carOuvrant)) && partie.endsWith(String.valueOf(carFermant))) {
                     if (i == 0) {
                         resultat.add(partie);
                     } else {
@@ -359,7 +359,10 @@ public class Syntaxe {
                     //     sous_parties.add("");
                     // }
                     
-                    if (sousParties.size() == 0) {
+                    if (
+                        (sousParties.size() == 0) ||
+                        (sousParties.size() == 1 && sousParties.get(0).equals(""))
+                    ) {
                         sousParties = new Vector<String>();
                         sousParties.add("");
                         sousParties.add("");
@@ -420,7 +423,7 @@ public class Syntaxe {
         if (!texte.contains(String.valueOf(carOuvrant))) {
             return contientHG(texte, patterne);
         } else if (compterCaractereHG(texte, carOuvrant) != compterCaractereHG(texte, carFermant)) {
-            throw new IllegalArgumentException("Il y a des caractères(" + carOuvrant + " ou " + carFermant + ") en trop dans " + texte);
+            throw new IllegalArgumentException("Il y a des caractères( \"" + carOuvrant + "\" ou \"" + carFermant + "\" ) en trop dans " + texte);
         } else {
             // Les parties de la chaîne "texte" qui ne sont pas entourées par des caractères d'ouverture et de fermeture
             Vector<String> parties_valides = obtenirPartiesHGHCar(texte, carOuvrant, carFermant);

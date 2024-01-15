@@ -50,7 +50,7 @@ CHOISIR nom_relation;
 CHOISIR nom_relation[nom_colonne1, nom_colonne2];
 
 - Sélectionner une relation avec des prédicats et des colonnes spécifiques :
-CHOISIR personne[nom, prenom] PREDICATS taille > 1.7 ET [[age != 21 OU adresse != "Paris"] OU profession = "chaumeur"];
+CHOISIR personne[nom, prenom] PREDICATS taille > 1.7 ET ((age != 21 OU adresse != "Paris") OU profession = "chaumeur");
 
 - Produit cartésien :
 CHOISIR personne PRODUIT note;
