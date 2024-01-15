@@ -15,7 +15,7 @@ import relation.syntaxe.Syntaxe;
 public class LRSInterpretteur {
 
     private final HashMap<String, String> COMMANDES_VALIDES = new HashMap<String, String>();
-    private final boolean DEBUG = true;
+    private final boolean DEBUG = false;
     private String CURRENT_DIR;
 
     private Base base = new Base();
@@ -259,6 +259,8 @@ public class LRSInterpretteur {
         Relation resultat = null;
         ArbrePredicat predicats = null;
         int limite = -1;
+
+        Syntaxe.verifierParenthesesHG(commandeTraitee);
 
         if (commandeTraitee.toUpperCase().startsWith("CHOISIR ")) {
             commandeTraitee = commandeTraitee.substring("CHOISIR ".length());

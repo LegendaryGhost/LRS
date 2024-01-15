@@ -12,11 +12,10 @@ choisir r1 division r2;
 CHOISIR personne PREDICATS id > 1 LIMITE 2;
 
 -------------------------------- Test prédicats imbriqués --------------------------------
-CHOISIR note PREDICATS id > ((2 + 2) / (5 - 3)) ET ((valeur > 10 OU matiere != "Maths") OU id_etudiant = 4);
+CHOISIR note PREDICATS id <= 2 OU (id_etudiant >= 4 ET matiere = "Maths");
 
 -------------------------------- Test sous-requêtes --------------------------------
-choisir (choisir note[id_etudiant, matiere, valeur]) predicats matiere = "Maths";
-choisir (choisir note[id_etudiant, matiere, valeur] predicats id_etudiant = 3) limite 1;
+choisir (choisir (choisir personne union choisir etudiant) predicats id >= 3) limite 1;
 
 -------------------------------- Test union --------------------------------
 CHOISIR personne UNION CHOISIR etudiant;
