@@ -1,5 +1,3 @@
--------------------------------- Test prédicats imbriqués --------------------------------
-CHOISIR note PREDICATS id > ((2 + 2) / (5 - 3)) ET ((valeur > 10 OU matiere != "Maths") OU id_etudiant = 4);
 
 -------------------------------- Test division --------------------------------
 creer relation r1 : A lettres, B lettres;
@@ -9,6 +7,12 @@ ajouter dans r2 : ["x1"] ["x2"];
 choisir r1;
 choisir r2;
 choisir r1 division r2;
+
+-------------------------------- Test prédicats prédicats + limites --------------------------------
+CHOISIR personne PREDICATS id > 1 LIMITE 2;
+
+-------------------------------- Test prédicats imbriqués --------------------------------
+CHOISIR note PREDICATS id > ((2 + 2) / (5 - 3)) ET ((valeur > 10 OU matiere != "Maths") OU id_etudiant = 4);
 
 -------------------------------- Test sous-requêtes --------------------------------
 choisir (choisir note[id_etudiant, matiere, valeur]) predicats matiere = "Maths";

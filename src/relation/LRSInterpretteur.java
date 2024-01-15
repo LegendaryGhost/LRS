@@ -279,12 +279,12 @@ public class LRSInterpretteur {
                 if (partieLimites.size() > 2) {
                     throw new Exception("La commande ne doit pas contenir plusieurs symboles : LIMITE");
                 } else {
+                    commandeTraitee = partieLimites.get(0);
                     try {
                         limite = Integer.parseInt(partieLimites.get(1).trim());
                         commandeTraitee = partieLimites.get(0).trim();
                     } catch (Exception e) {
-                        System.out.println("\"" + partieLimites.get(1).trim() + "\"");
-                        throw new Exception("Limite invalide");
+                        throw new Exception("Limite invalide : \"" + partieLimites.get(1).trim() + "\"");
                     }
                 }
             }
